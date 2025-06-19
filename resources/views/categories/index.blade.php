@@ -177,10 +177,27 @@
             fetchCategories();
         },
         error: function(xhr) {
-            const errorMessage = xhr.responseJSON?.errors?.name?.[0] || xhr.responseJSON?.message || xhr.statusText;
-            showAlert('Error saving category: ' + errorMessage, 'danger');
-            console.error('Error saving category:', xhr);
-        }
+    let errorMessage = 'An error occurred.';
+
+    if (xhr.status === 422) {
+        // Laravel validation error
+        const errors = xhr.responseJSON.errors;
+        errorMessage = '<ul>';
+        $.each(errors, function(key, messages) {
+            messages.forEach(msg => {
+                errorMessage += `<li>${msg}</li>`;
+            });
+        });
+        errorMessage += '</ul>';
+    } else {
+        // Other errors
+        errorMessage = xhr.responseJSON?.message || xhr.statusText;
+    }
+
+    showAlert(errorMessage, 'danger');
+}
+
+
     });
 });
 
@@ -249,7 +266,7 @@ $(document).on('click', '.edit-btn', function() {
             fetchCategories();
         });
 
-        $(document).on('click', '.file-preview', function()     
+        $(document).on('click', '.file-preview', function()
         {
             const src = $(this).data('src');
             $('#previewImage').attr('src', src);

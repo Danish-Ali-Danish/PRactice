@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
  * |--------------------------------------------------------------------------
  */
 
-// Authentication Routes
+// Authentication Routes    
 Route::get('/login', [AuthController::class, 'createLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
         return view('dashboard');
-    })->name('dashboard');
+    })->name('dashboard')->middleware('admin');
 
     // Redirect root to dashboard if authenticated
     Route::get('/', function () {
