@@ -13,12 +13,14 @@
 
     <div id="alertContainer"></div>
 
-    <div class="table-responsive">
+    <div class="table-responsive d-flex justify-content-center gap-2">
         <table class="table table-striped table-hover">
-            <thead class="table-dark">
+            <thead class="table-dark ">
                 <tr>
                     <th>#</th>
                     <th>Name</th>
+                    <th>File</th>
+
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
@@ -31,6 +33,22 @@
 @include('categories.edit')
 {{-- Delete Confirmation Modal --}}
 @include('categories.delete')
+
+
+<div class="modal fade" id="filePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">File Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="previewImage" src="" class="img-fluid" alt="File Preview">
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts') {{-- Using @section('scripts') for page-specific JS --}}
@@ -83,7 +101,7 @@
             function renderCategories(categories) {
                 categoryTableBody.empty(); // Clear existing rows
                 if (categories.length === 0) {
-                    categoryTableBody.append('<tr><td colspan="3" class="text-center">No categories found.</td></tr>');
+                    categoryTableBody.append('<tr><td colspan="4" class="text-center">No categories found.</td></tr>');
                     return;
                 }
                 $.each(categories, (index, category) => {
@@ -91,6 +109,9 @@
                         <tr>
                             <td>${index + 1}</td>
                             <td>${category.name}</td>
+                            <td>${category.file_path ? `<img src="/storage/${category.file_path}" alt="${category.name}" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="/storage/${category.file_path}">` : 'No File'}
+                            </td>
+
                             <td class="text-center">
                                 <button class="btn btn-sm btn-info btn-action edit-btn" data-id="${category.id}">
                                     <i class="fas fa-edit"></i> Edit
@@ -109,39 +130,46 @@
 
             // Fetch Categories
             function fetchCategories() {
-    $.ajax({
-        url: '{{ route("categories.index") }}',
-        method: 'GET',
-        success: function(data) {
-            renderCategories(data);
-        },
-        error: function(xhr) {
-            showAlert('Error fetching categories: ' + (xhr.responseJSON ? xhr.responseJSON.message : xhr.statusText), 'danger');
-            console.error('Error fetching categories:', xhr);
-        }
-    });
+                    $.ajax
+            ({
+                        url: '{{ route("categories.index") }}',
+                        method: 'GET',
+                        success: function(data) {
+                            renderCategories(data);
+                        },
+                        error: function(xhr) {
+                            showAlert('Error fetching categories: ' + (xhr.responseJSON ? xhr.responseJSON.message : xhr.statusText), 'danger');
+                            console.error('Error fetching categories:', xhr);
+                        }
+            });
 }
 
             // Save Category (Add or Update)
             saveCategoryBtn.on('click', function() {
     const id = categoryIdInput.val();
     const name = categoryNameInput.val().trim();
+    const file = $('#categoryFile')[0].files[0];
 
     if (!name) {
         showAlert('Category name is required.', 'warning');
         return;
     }
 
-    const url = id ? `/categories/${id}` : '{{ route("categories.store") }}';
-    const method = id ? 'PUT' : 'POST';
-    const data = { name: name, _token: '{{ csrf_token() }}' };
+    const formData = new FormData();
+    formData.append('name', name);
+    if (file) formData.append('file', file);
+    formData.append('_token', '{{ csrf_token() }}');
 
-    if (id) data._method = 'PUT'; // Add method spoofing if PUT
+    if (id) formData.append('_method', 'PUT');
+
+    const url = id ? `/categories/${id}` : '{{ route("categories.store") }}';
 
     $.ajax({
         url: url,
-        method: 'POST', // Always POST for Laravel method spoofing
-        data: data,
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
         success: function(response) {
             showAlert('Category ' + (id ? 'updated' : 'added') + ' successfully!', 'success');
             categoryModal.hide();
@@ -220,5 +248,13 @@ $(document).on('click', '.edit-btn', function() {
             // Initial load of categories when the page is ready
             fetchCategories();
         });
+
+        $(document).on('click', '.file-preview', function()     
+        {
+            const src = $(this).data('src');
+            $('#previewImage').attr('src', src);
+            new bootstrap.Modal($('#filePreviewModal')).show();
+        });
+
     </script>
 @endsection

@@ -15,6 +15,11 @@
                         <label for="categoryName" class="form-label">Category Name</label>
                         <input type="text" class="form-control" id="categoryName" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="categoryFile" class="form-label">Category File (Image)</label>
+                        <input type="file" class="form-control" id="categoryFile" accept="image/*">
+                    </div>
+
                 </form>
             </div>
             <div class="modal-footer align-items-center">

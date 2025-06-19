@@ -9,7 +9,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];  // Allow mass assignment for the 'name' field
+    protected $fillable = ['name', 'file_path'];  // Allow mass assignment for the 'name' field
 
     public function brands()
     {

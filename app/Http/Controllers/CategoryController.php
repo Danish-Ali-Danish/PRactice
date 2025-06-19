@@ -20,13 +20,24 @@ class CategoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:categories,name',
+            'file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $category = Category::create($request->only('name'));
+        $filePath = null;
+
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('uploads', 'public');
+        }
+
+        $category = Category::create([
+            'name' => $request->name,
+            'file_path' => $filePath
+        ]);
+
         return response()->json(['message' => 'Category added successfully!', 'category' => $category]);
     }
 
@@ -39,20 +50,36 @@ class CategoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $category->update($request->only('name'));
+        // Delete old file if new file uploaded
+        if ($request->hasFile('file')) {
+            if ($category->file_path && \Storage::disk('public')->exists($category->file_path)) {
+                \Storage::disk('public')->delete($category->file_path);
+            }
+
+            $filePath = $request->file('file')->store('uploads', 'public');
+            $category->file_path = $filePath;
+        }
+
+        $category->name = $request->name;
+        $category->save();
+
         return response()->json(['message' => 'Category updated successfully!', 'category' => $category]);
     }
 
     public function destroy(Category $category)
     {
-        // Optional: Check for foreign key constraints here
         try {
+            if ($category->file_path && \Storage::disk('public')->exists($category->file_path)) {
+                \Storage::disk('public')->delete($category->file_path);
+            }
+
             $category->delete();
             return response()->json(['message' => 'Category deleted successfully!']);
         } catch (\Illuminate\Database\QueryException $e) {
