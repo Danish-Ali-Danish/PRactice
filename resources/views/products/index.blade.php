@@ -285,7 +285,7 @@
 
         addProductBtn.on('click', function() {
             clearForm();
-            loadCategories();
+            loadCategories(); 
             loadBrands();
             productModalLabel.text('Add New Product');
         });
