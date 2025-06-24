@@ -22,14 +22,14 @@
                 <a href="{{ route('products.index') }}"><i class="bi bi-box-seam me-2"></i>Products</a>
             </li>
 
-            <!-- Order Management -->
-            <li class="{{ request()->routeIs('orders.index') ? 'active' : '' }}">
-                <a href="{{ route('orders.index') }}"><i class="bi bi-cart me-2"></i>Orders</a>
-            </li>
-
+            
             <!-- Customer Management -->
             <li class="{{ request()->routeIs('customers.index') ? 'active' : '' }}">
                 <a href="{{ route('customers.index') }}"><i class="bi bi-people me-2"></i>Customers</a>
+            </li>
+            <!-- Order Management -->
+            <li class="{{ request()->routeIs('orders.index') ? 'active' : '' }}">
+                <a href="{{ route('orders.index') }}"><i class="bi bi-cart me-2"></i>Orders</a>
             </li>
 
             <!-- Reports -->

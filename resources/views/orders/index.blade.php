@@ -40,7 +40,7 @@ $(document).ready(function() {
     const deleteConfirmModal = new bootstrap.Modal($('#deleteConfirmModal')[0]);
     const orderForm = $('#orderForm');
     const orderIdInput = $('#orderId');
-    const customerInput = $('#customerName');
+    const customerSelect = $('#customerSelect');
     const totalAmountInput = $('#totalAmount');
     const statusInput = $('#orderStatus');
     const alertContainer = $('#alertContainer');
@@ -88,14 +88,14 @@ $(document).ready(function() {
             const row = `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${order.customer_name}</td>
+                    <td>${order.customer.name}</td>
                     <td>${order.total_amount}</td>
                     <td>${order.status}</td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-info btn-action edit-btn" data-id="${order.id}">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button class="btn btn-sm btn-danger btn-action delete-btn" data-id="${order.id}" data-name="${order.customer_name}">
+                        <button class="btn btn-sm btn-danger btn-action delete-btn" data-id="${order.id}" data-name="${order.customer.name}">
                             <i class="fas fa-trash-alt"></i> Delete
                         </button>
                     </td>
@@ -118,19 +118,36 @@ $(document).ready(function() {
         });
     }
 
+    function fetchCustomers() {
+        $.ajax({
+            url: '{{ route("customers.index") }}',
+            method: 'GET',
+            success: function(customers) {
+                customerSelect.empty();
+                customerSelect.append('<option value="">Select Customer</option>');
+                $.each(customers, function(index, customer) {
+                    customerSelect.append(`<option value="${customer.id}">${customer.name}</option>`);
+                });
+            },
+            error: function(xhr) {
+                showAlert('Error fetching customers: ' + xhr.statusText, 'danger');
+            }
+        });
+    }
+
     saveOrderBtn.on('click', function() {
         const id = orderIdInput.val();
-        const customerName = customerInput.val().trim();
+        const customerId = customerSelect.val();
         const totalAmount = totalAmountInput.val().trim();
         const status = statusInput.val();
 
-        if (!customerName || !totalAmount || !status) {
+        if (!customerId || !totalAmount || !status) {
             showAlert('All fields are required.', 'warning');
             return;
         }
 
         const formData = {
-            customer_name: customerName,
+            customer_id: customerId,
             total_amount: totalAmount,
             status: status
         };
@@ -166,7 +183,7 @@ $(document).ready(function() {
             method: 'GET',
             success: function(order) {
                 orderIdInput.val(order.id);
-                customerInput.val(order.customer_name);
+                customerSelect.val(order.customer_id);
                 totalAmountInput.val(order.total_amount);
                 statusInput.val(order.status);
                 $('#orderModalLabel').text('Edit Order');
@@ -216,6 +233,7 @@ $(document).ready(function() {
     });
 
     fetchOrders();
+    fetchCustomers();
 });
 </script>
 @endsection
