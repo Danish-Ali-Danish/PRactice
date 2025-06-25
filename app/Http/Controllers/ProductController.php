@@ -11,6 +11,40 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
+    // For user side
+
+    public function userIndex(Request $request)
+    {
+        $categories = Category::all();
+        $brands = Brand::all();
+
+        $products = Product::query();
+
+        if ($request->category) {
+            $products->where('category_id', $request->category);
+        }
+
+        if ($request->brand) {
+            $products->where('brand_id', $request->brand);
+        }
+
+        if ($request->search) {
+            $products->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $products = $products->latest()->paginate(12);
+
+        return view('user.products.index', compact('products', 'categories', 'brands'));
+    }
+
+    // Optional: separate admin view
+    public function adminIndex()
+    {
+        $categories = Category::all();
+        $brands = Brand::all();
+        return view('admin.products.index', compact('categories', 'brands'));
+    }
+
     /**
      * Display a listing of the products.
      */
