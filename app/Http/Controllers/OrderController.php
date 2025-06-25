@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
@@ -7,14 +8,15 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        if ($request->ajax()) {
-            $orders = Order::with('customer')->get();
-            return response()->json($orders);
-        }
-
         return view('orders.index');
+    }
+
+    public function list()
+    {
+        $orders = Order::with('customer')->latest()->get();
+        return response()->json($orders);
     }
 
     public function store(Request $request)

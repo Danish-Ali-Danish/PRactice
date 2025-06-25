@@ -22,7 +22,7 @@ class CustomerController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:customers,email',
-            'phone' => 'required|string|max:15',
+            'phone' => 'required|string|max:20',
         ]);
 
         Customer::create($request->all());
@@ -40,7 +40,7 @@ class CustomerController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:customers,email,' . $customer->id,
-            'phone' => 'required|string|max:15',
+            'phone' => 'required|string|max:20',
         ]);
 
         $customer->update($request->all());

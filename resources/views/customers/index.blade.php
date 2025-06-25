@@ -107,7 +107,7 @@ $(document).ready(function() {
 
     function fetchCustomers() {
         $.ajax({
-            url: '{{ route("customers.index") }}',
+            url: '{{ route("customers.list") }}',
             method: 'GET',
             success: function(data) {
                 renderCustomers(data);

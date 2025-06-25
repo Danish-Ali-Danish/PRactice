@@ -107,7 +107,7 @@ $(document).ready(function() {
 
     function fetchOrders() {
         $.ajax({
-            url: '{{ route("orders.index") }}',
+            url: '{{ route("orders.list") }}',
             method: 'GET',
             success: function(data) {
                 renderOrders(data);
@@ -120,7 +120,7 @@ $(document).ready(function() {
 
     function fetchCustomers() {
         $.ajax({
-            url: '{{ route("customers.index") }}',
+            url: '{{ route("customers.list") }}',
             method: 'GET',
             success: function(customers) {
                 customerSelect.empty();

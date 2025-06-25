@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::Resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
     Route::resource('orders', OrderController::class);
+    Route::get('/orders-list', [OrderController::class, 'list'])->name('orders.list');
     Route::resource('customers', CustomerController::class);
     Route::get('/customer-list', [CustomerController::class, 'list'])->name('customers.list');
     Route::resource('reports', ReportController::class);
